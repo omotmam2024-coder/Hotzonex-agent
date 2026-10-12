@@ -16,10 +16,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:env": "tsx scripts/check-env.ts",
-    "onboard": "tsx scripts/onboard-business.ts"
+    "onboard": "tsx scripts/onboard-business.ts",
+    "webhook:test": "tsx scripts/send-test-webhook.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",
+    "@vercel/functions": "^3.9.11",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^8.4.0",

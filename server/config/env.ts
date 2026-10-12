@@ -76,11 +76,17 @@ const whatsappSchema = z.object({
   ),
 });
 
+const jobsSchema = z.object({
+  // Vercel Cron sends this as a bearer token to job endpoints.
+  CRON_SECRET: secret('CRON_SECRET', 32),
+});
+
 const groupSchemas = {
   app: appSchema,
   supabase: supabaseSchema,
   openai: openaiSchema,
   whatsapp: whatsappSchema,
+  jobs: jobsSchema,
 } as const;
 
 export type ConfigGroup = keyof typeof groupSchemas;
@@ -90,12 +96,14 @@ export type AppConfig = z.infer<typeof appSchema>;
 export type SupabaseConfig = z.infer<typeof supabaseSchema>;
 export type OpenAIConfig = z.infer<typeof openaiSchema>;
 export type WhatsAppConfig = z.infer<typeof whatsappSchema>;
+export type JobsConfig = z.infer<typeof jobsSchema>;
 
 type GroupConfig = {
   app: AppConfig;
   supabase: SupabaseConfig;
   openai: OpenAIConfig;
   whatsapp: WhatsAppConfig;
+  jobs: JobsConfig;
 };
 
 /** Config for the requested groups, merged into one object. */
@@ -163,7 +171,7 @@ export function getConfigStatus(source: EnvSource = process.env): ConfigStatus {
   return status;
 }
 
-const SECRET_NAME = /(SECRET|SERVICE_ROLE|PRIVATE|PASSWORD|TOKEN|OPENAI|APP_SECRET)/i;
+const SECRET_NAME = /(SECRET|SERVICE_ROLE|PRIVATE|PASSWORD|TOKEN|OPENAI|APP_SECRET|CRON)/i;
 const SECRET_VALUE = /^(sb_secret_|sk-|sk_live_|EAA)/;
 
 /**

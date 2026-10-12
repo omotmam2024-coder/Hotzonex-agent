@@ -12,7 +12,8 @@ deployment.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design,
 [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for every credential and
-[docs/DATABASE.md](docs/DATABASE.md) for migrations, RLS and onboarding.
+[docs/DATABASE.md](docs/DATABASE.md) for migrations, RLS and onboarding and
+[docs/WHATSAPP.md](docs/WHATSAPP.md) for the webhook pipeline and Meta setup.
 
 ## Status
 
@@ -20,7 +21,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design,
 | --- | --- | --- |
 | 1 | Scaffold, TypeScript, scripts, env validation, health endpoint | done |
 | 2 | Migrations, auth, RLS, tenant isolation, product CRUD | done |
-| 3 | WhatsApp webhook, durable events, dedupe, outbound, statuses | planned |
+| 3 | WhatsApp webhook, durable events, dedupe, outbound, statuses | done |
 | 4 | OpenAI Responses API + tools | planned |
 | 5 | Dashboard, deployment docs, onboarding checklist | planned |
 
@@ -50,6 +51,7 @@ npm run dev       # terminal 2: dashboard on :5173 (proxies /api)
 | `npm run typecheck` | `tsc` for server (`tsconfig.json`) and app (`tsconfig.app.json`) |
 | `npm test` | Vitest: `server` project (node) and `app` project (jsdom) |
 | `npm run check:env` | Validate local configuration without printing values |
+| `npm run webhook:test` | Post a signed sample WhatsApp event to the local runner (no real messages) |
 | `npm run onboard` | Operator: create a business, invite its owner, map a WhatsApp number (dry run unless `--confirm`) |
 
 ## API
@@ -61,11 +63,14 @@ npm run dev       # terminal 2: dashboard on :5173 (proxies /api)
 | `GET, PATCH /api/business?business_id=` | Business profile and settings (PATCH: owner/admin, profile fields only) |
 | `GET, POST, PATCH, DELETE /api/products?business_id=[&id=]` | Product/service CRUD (writes: owner/admin; delete archives products that appear in orders) |
 
-All endpoints except health require `Authorization: Bearer <Supabase access token>`.
+| `GET, POST /api/webhooks/whatsapp` | Meta verification handshake and signed event delivery |
+| `GET, POST /api/jobs/process-events` | Retry queued webhook events (`Authorization: Bearer CRON_SECRET`; Vercel Cron daily) |
+
+Dashboard endpoints require `Authorization: Bearer <Supabase access token>`.
 
 ## Security baseline
 
 - Server secrets are never `VITE_*`; the build fails if one looks like a secret.
 - Configuration is validated with Zod; functions fail closed when credentials are missing.
 - Tenant access comes from membership, never from a `business_id` alone; RLS on every table, tested against real SQL.
-- Webhooks are verified with HMAC-SHA256 over the raw body before any processing (Phase 3).
+- Webhooks are verified with HMAC-SHA256 over the raw body (constant-time) before anything is parsed or stored; events are deduplicated and tenants resolved only via the phone-number-id mapping.

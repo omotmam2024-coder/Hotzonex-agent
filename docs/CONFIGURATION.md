@@ -20,12 +20,13 @@ deployments.
 | `WHATSAPP_PHONE_NUMBER_ID` | no | WhatsApp | WhatsApp → API Setup → **Phone number ID** (a numeric id, not the phone number). |
 | `WHATSAPP_VERIFY_TOKEN` | **no** | WhatsApp | A random string you generate (≥16 chars), e.g. `openssl rand -hex 32`. Enter the same value as the "Verify token" in WhatsApp → Configuration → Webhook. |
 | `WHATSAPP_APP_SECRET` | **no** | WhatsApp | developers.facebook.com → your app → App settings → Basic → **App secret**. Used to verify `X-Hub-Signature-256` on every webhook. |
+| `CRON_SECRET` | **no** | retry job | A random value you generate (≥32 chars), e.g. `openssl rand -hex 32`. Vercel Cron sends it as a bearer token to `/api/jobs/process-events`. |
 | `WHATSAPP_API_VERSION` | no | WhatsApp | Graph API version such as `v23.0`. Use the latest listed at developers.facebook.com/docs/graph-api/changelog and review it when Meta deprecates versions. |
 
 Rules enforced in code:
 
 - `server/config/env.ts` validates server variables in groups (`app`,
-  `supabase`, `openai`, `whatsapp`). Each function requires only the groups
+  `supabase`, `openai`, `whatsapp`, `jobs`). Each function requires only the groups
   it uses and fails closed if they are missing. Errors list variable names,
   never values.
 - `src/lib/env.ts` validates the browser variables and rejects a Supabase
