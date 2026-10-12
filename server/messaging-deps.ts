@@ -1,6 +1,10 @@
 import { waitUntil } from '@vercel/functions';
+import { OpenAIResponsesModel } from './ai/model.js';
+import { AiResponder } from './ai/responder.js';
+import { AiStore } from './ai/store.js';
 import type { JobDeps } from './jobs/process-events.js';
-import { loadServerConfig } from './config/env.js';
+import { ConfigError, loadServerConfig } from './config/env.js';
+import { sendTextMessage } from './whatsapp/sender.js';
 import { supabaseRpc } from './db/rpc.js';
 import { createServiceClient } from './db/supabase.js';
 import { WhatsAppGraphClient } from './whatsapp/graph.js';
@@ -9,6 +13,7 @@ import { MessagingStore } from './whatsapp/store.js';
 import type { WebhookDeps } from './whatsapp/webhook.js';
 
 let store: MessagingStore | undefined;
+let aiStore: AiStore | undefined;
 
 function messagingStore(): MessagingStore {
   store ??= new MessagingStore(supabaseRpc(createServiceClient(loadServerConfig(['supabase']))));
@@ -20,9 +25,30 @@ export function graphClient(): WhatsAppGraphClient {
   return new WhatsAppGraphClient({ accessToken: config.WHATSAPP_ACCESS_TOKEN, apiVersion: config.WHATSAPP_API_VERSION });
 }
 
-/** Phase 4 plugs the AI agent in here. Until then inbound messages are only recorded. */
+/**
+ * The AI agent, when OpenAI is configured. Without it inbound messages are
+ * still recorded and a person can reply from the dashboard.
+ */
 function responder(): InboundResponder | undefined {
-  return undefined;
+  let config;
+  try {
+    config = loadServerConfig(['supabase', 'openai', 'whatsapp']);
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      console.warn('[ai] responder disabled: OpenAI/WhatsApp configuration incomplete');
+      return undefined;
+    }
+    throw err;
+  }
+  aiStore ??= new AiStore(supabaseRpc(createServiceClient(config)));
+  const graph = graphClient();
+  const messages = messagingStore();
+  return new AiResponder({
+    model: new OpenAIResponsesModel(config.OPENAI_API_KEY),
+    modelName: config.OPENAI_MODEL,
+    store: aiStore,
+    send: (input) => sendTextMessage({ store: messages, graph }, input),
+  });
 }
 
 export function webhookDeps(): WebhookDeps {

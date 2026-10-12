@@ -13,7 +13,8 @@ deployment.
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design,
 [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for every credential and
 [docs/DATABASE.md](docs/DATABASE.md) for migrations, RLS and onboarding and
-[docs/WHATSAPP.md](docs/WHATSAPP.md) for the webhook pipeline and Meta setup.
+[docs/WHATSAPP.md](docs/WHATSAPP.md) for the webhook pipeline and Meta setup and
+[docs/AI.md](docs/AI.md) for the agent, its tools and limits.
 
 ## Status
 
@@ -22,7 +23,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design,
 | 1 | Scaffold, TypeScript, scripts, env validation, health endpoint | done |
 | 2 | Migrations, auth, RLS, tenant isolation, product CRUD | done |
 | 3 | WhatsApp webhook, durable events, dedupe, outbound, statuses | done |
-| 4 | OpenAI Responses API + tools | planned |
+| 4 | OpenAI Responses API + tools | done |
 | 5 | Dashboard, deployment docs, onboarding checklist | planned |
 
 ## Requirements
