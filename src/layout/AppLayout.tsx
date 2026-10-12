@@ -3,6 +3,10 @@ import { useAuth } from '../auth/AuthContext';
 import { useBusiness } from '../business/BusinessContext';
 
 const NAV = [
+  { to: '/overview', label: 'Overview' },
+  { to: '/conversations', label: 'Conversations' },
+  { to: '/orders', label: 'Orders' },
+  { to: '/customers', label: 'Customers' },
   { to: '/products', label: 'Products' },
   { to: '/settings', label: 'Settings' },
 ];

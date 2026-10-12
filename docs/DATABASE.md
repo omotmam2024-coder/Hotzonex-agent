@@ -7,6 +7,9 @@
 | `supabase/migrations/20261012000100_schema.sql` | Tables, constraints, indexes, `updated_at` triggers |
 | `supabase/migrations/20261012000200_rls.sql` | Privileges, RLS policies, `private.is_member()` |
 | `supabase/migrations/20261012000300_functions.sql` | `create_business_with_owner`, `create_order_request`, `set_order_status` |
+| `supabase/migrations/20261012000400_messaging.sql` | Webhook inbox, inbound/outbound messages, delivery statuses |
+| `supabase/migrations/20261012000500_ai.sql` | AI catalogue search, context, usage, handover |
+| `supabase/migrations/20261012000600_dashboard.sql` | Dashboard read models and actions (run as the user, RLS applies) |
 
 ### Applying to a Supabase project
 
@@ -22,7 +25,7 @@ npx supabase@2.120.0 db push --dry-run      # review what will run
 npx supabase@2.120.0 db push
 ```
 
-Option B, dashboard: open **SQL Editor** and run the three files in order.
+Option B, dashboard: open **SQL Editor** and run the files in order.
 
 ### Auth settings on the hosted project
 
@@ -32,8 +35,8 @@ project set, under **Authentication**:
 - **Sign In / Providers → Email**: keep enabled; **disable "Allow new users to sign up"**.
   Owners are invited by the operator (`npm run onboard`).
 - **URL Configuration**: Site URL = your `APP_BASE_URL`; add
-  `<APP_BASE_URL>/products` (and `http://localhost:5173/products` for dev) to
-  Redirect URLs.
+  `<APP_BASE_URL>/overview` and `<APP_BASE_URL>/products` (and the
+  `http://localhost:5173/…` equivalents for dev) to Redirect URLs.
 - **Password policy**: minimum length 10 or more.
 - **Emails**: the built-in email sender is heavily rate-limited; configure
   custom SMTP before onboarding real clients.

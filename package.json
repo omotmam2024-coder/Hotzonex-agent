@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "check:env": "tsx scripts/check-env.ts",
     "onboard": "tsx scripts/onboard-business.ts",
-    "webhook:test": "tsx scripts/send-test-webhook.ts"
+    "webhook:test": "tsx scripts/send-test-webhook.ts",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

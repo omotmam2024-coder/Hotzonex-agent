@@ -22,7 +22,21 @@ export default defineConfig(({ mode }) => {
         '/api': { target: `http://localhost:${process.env.API_PORT ?? 3001}`, changeOrigin: false },
       },
     },
-    build: { sourcemap: false },
+    build: {
+      sourcemap: false,
+      rolldownOptions: {
+        output: {
+          // Vendor code in separate, long-cacheable chunks.
+          codeSplitting: {
+            groups: [
+              { name: 'supabase', test: /node_modules[\\/]@supabase/ },
+              { name: 'react', test: /node_modules[\\/](react|react-dom|react-router|scheduler)[\\/]/ },
+              { name: 'zod', test: /node_modules[\\/]zod/ },
+            ],
+          },
+        },
+      },
+    },
   };
 });
 

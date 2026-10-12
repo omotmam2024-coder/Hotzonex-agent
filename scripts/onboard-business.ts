@@ -89,7 +89,7 @@ if (userId) {
   console.log(`Found existing user ${userId}`);
 } else {
   const { data, error } = await db.auth.admin.inviteUserByEmail(args.email, {
-    redirectTo: `${config.APP_BASE_URL.replace(/\/$/, '')}/products`,
+    redirectTo: `${config.APP_BASE_URL.replace(/\/$/, '')}/overview`,
   });
   if (error || !data.user) throw new Error(`Invite failed: ${error?.message ?? 'no user returned'}`);
   userId = data.user.id;

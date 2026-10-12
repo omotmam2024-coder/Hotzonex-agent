@@ -86,9 +86,9 @@ describe('authentication', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('incorrect');
   });
 
-  it('signs in and lands on the products page', async () => {
+  it('signs in and returns to the page that was requested', async () => {
     const user = userEvent.setup();
-    renderApp('/login', new FakeAuth(), api());
+    renderApp('/products', new FakeAuth(), api());
     await user.type(await screen.findByLabelText('Email'), 'owner@example.com');
     await user.type(screen.getByLabelText('Password'), 'correct-password');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));

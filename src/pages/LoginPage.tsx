@@ -16,7 +16,7 @@ export function LoginPage() {
   if (loading) return <Loading label="Checking your session…" />;
   if (session) {
     const from = (location.state as { from?: string } | null)?.from;
-    return <Navigate to={from && from !== '/login' ? from : '/products'} replace />;
+    return <Navigate to={from && from !== '/login' ? from : '/overview'} replace />;
   }
 
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -38,7 +38,7 @@ export function LoginPage() {
     if (!validEmail) return setError('Enter a valid email address.');
     setBusy(true);
     setError(null);
-    const { error } = await client.sendMagicLink(email.trim(), `${window.location.origin}/products`);
+    const { error } = await client.sendMagicLink(email.trim(), `${window.location.origin}/overview`);
     setBusy(false);
     if (error) setError(error);
     else setNotice('Check your email for a sign-in link.');

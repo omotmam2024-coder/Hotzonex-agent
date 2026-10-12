@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { PGlite, type Transaction } from '@electric-sql/pglite';
+import { DbError } from '../../server/db/rpc.js';
 
 const MIGRATIONS_DIR = join(import.meta.dirname, '../../supabase/migrations');
 const SHIM = readFileSync(join(import.meta.dirname, 'supabase-shim.sql'), 'utf8');
@@ -131,7 +132,7 @@ async function insertProduct(
  * Rpc implementation backed by PGlite, running as service_role like the
  * server does. Mirrors supabase-js rpc(): named arguments, JSON results.
  */
-export function pgliteRpc(db: Db) {
+export function pgliteRpc(db: Db, role: Role = 'service_role', userId: string | null = null) {
   return async <T>(fn: string, args: Record<string, unknown>): Promise<T> => {
     if (!/^[a-z_]+$/.test(fn)) throw new Error(`bad function name ${fn}`);
     const keys = Object.keys(args);
@@ -140,12 +141,18 @@ export function pgliteRpc(db: Db) {
       return v !== null && typeof v === 'object' ? JSON.stringify(v) : v;
     });
     const call = `select public.${fn}(${keys.map((k, i) => `${k} => $${i + 1}`).join(', ')}) as result`;
-    return as(
-      db,
-      'service_role',
-      null,
-      async (tx) => ((await tx.query<{ result: unknown }>(call, params)).rows[0]?.result ?? null) as T,
-      { commit: true },
-    );
+    try {
+      return await as(
+        db,
+        role,
+        userId,
+        async (tx) => ((await tx.query<{ result: unknown }>(call, params)).rows[0]?.result ?? null) as T,
+        { commit: true },
+      );
+    } catch (err) {
+      // Same error shape as supabaseRpc in production.
+      const e = err as { code?: string; message?: string };
+      throw new DbError(fn, e.code, e.message ?? String(err));
+    }
   };
 }

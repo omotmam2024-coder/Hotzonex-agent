@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { AuthProvider, RequireAuth, type AuthClient } from './auth/AuthContext';
 import { BusinessProvider } from './business/BusinessContext';
@@ -5,9 +6,19 @@ import { ApiProvider } from './lib/ApiContext';
 import type { ApiClient } from './lib/api';
 import type { ClientEnvResult } from './lib/env';
 import { AppLayout } from './layout/AppLayout';
+import { Loading } from './components/States';
 import { LoginPage } from './pages/LoginPage';
-import { ProductsPage } from './pages/ProductsPage';
-import { SettingsPage } from './pages/SettingsPage';
+
+// Pages load on demand to keep the initial bundle small.
+const OverviewPage = lazy(() => import('./pages/OverviewPage').then((m) => ({ default: m.OverviewPage })));
+const ConversationsPage = lazy(() => import('./pages/ConversationsPage').then((m) => ({ default: m.ConversationsPage })));
+const ConversationDetailPage = lazy(() =>
+  import('./pages/ConversationsPage').then((m) => ({ default: m.ConversationDetailPage })),
+);
+const CustomersPage = lazy(() => import('./pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
+const OrdersPage = lazy(() => import('./pages/OrdersPage').then((m) => ({ default: m.OrdersPage })));
+const ProductsPage = lazy(() => import('./pages/ProductsPage').then((m) => ({ default: m.ProductsPage })));
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 
 export interface Services {
   auth: AuthClient;
@@ -49,10 +60,15 @@ export function App({ env, services }: { env: ClientEnvResult; services: Service
               </RequireAuth>
             }
           >
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/overview" element={<Page><OverviewPage /></Page>} />
+            <Route path="/conversations" element={<Page><ConversationsPage /></Page>} />
+            <Route path="/conversations/:id" element={<Page><ConversationDetailPage /></Page>} />
+            <Route path="/customers" element={<Page><CustomersPage /></Page>} />
+            <Route path="/orders" element={<Page><OrdersPage /></Page>} />
+            <Route path="/products" element={<Page><ProductsPage /></Page>} />
+            <Route path="/settings" element={<Page><SettingsPage /></Page>} />
           </Route>
-          <Route path="/" element={<Navigate to="/products" replace />} />
+          <Route path="/" element={<Navigate to="/overview" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </ApiProvider>
@@ -60,11 +76,15 @@ export function App({ env, services }: { env: ClientEnvResult; services: Service
   );
 }
 
+function Page({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<Loading />}>{children}</Suspense>;
+}
+
 function NotFoundPage() {
   return (
     <main className="page">
       <h1>Page not found</h1>
-      <a href="/products">Go to products</a>
+      <a href="/overview">Go to the dashboard</a>
     </main>
   );
 }

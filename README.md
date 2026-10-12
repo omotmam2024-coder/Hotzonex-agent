@@ -15,6 +15,9 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design,
 [docs/DATABASE.md](docs/DATABASE.md) for migrations, RLS and onboarding and
 [docs/WHATSAPP.md](docs/WHATSAPP.md) for the webhook pipeline and Meta setup and
 [docs/AI.md](docs/AI.md) for the agent, its tools and limits.
+Operations: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (Vercel, smoke tests,
+rollback, monitoring, backups, limits) and
+[docs/ONBOARDING.md](docs/ONBOARDING.md) (client checklist).
 
 ## Status
 
@@ -24,7 +27,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design,
 | 2 | Migrations, auth, RLS, tenant isolation, product CRUD | done |
 | 3 | WhatsApp webhook, durable events, dedupe, outbound, statuses | done |
 | 4 | OpenAI Responses API + tools | done |
-| 5 | Dashboard, deployment docs, onboarding checklist | planned |
+| 5 | Dashboard, deployment docs, onboarding checklist | done (not yet deployed) |
 
 ## Requirements
 
@@ -53,6 +56,7 @@ npm run dev       # terminal 2: dashboard on :5173 (proxies /api)
 | `npm test` | Vitest: `server` project (node) and `app` project (jsdom) |
 | `npm run check:env` | Validate local configuration without printing values |
 | `npm run webhook:test` | Post a signed sample WhatsApp event to the local runner (no real messages) |
+| `npm run smoke -- --url <url>` | Non-destructive production smoke test |
 | `npm run onboard` | Operator: create a business, invite its owner, map a WhatsApp number (dry run unless `--confirm`) |
 
 ## API
@@ -64,6 +68,10 @@ npm run dev       # terminal 2: dashboard on :5173 (proxies /api)
 | `GET, PATCH /api/business?business_id=` | Business profile and settings (PATCH: owner/admin, profile fields only) |
 | `GET, POST, PATCH, DELETE /api/products?business_id=[&id=]` | Product/service CRUD (writes: owner/admin; delete archives products that appear in orders) |
 
+| `GET /api/overview?business_id=` | Dashboard counts, usage against limits, recent errors |
+| `GET, PATCH, POST /api/conversations?business_id=[&id=]` | List/detail; hand over, resume AI, close; team reply (pauses AI) |
+| `GET, PATCH /api/customers?business_id=[&lead_id=]` | Customers with lead status; update lead status/notes |
+| `GET, PATCH /api/orders?business_id=[&id=]` | List orders; confirm/cancel/fulfil and record verified payment (owner/admin) |
 | `GET, POST /api/webhooks/whatsapp` | Meta verification handshake and signed event delivery |
 | `GET, POST /api/jobs/process-events` | Retry queued webhook events (`Authorization: Bearer CRON_SECRET`; Vercel Cron daily) |
 
