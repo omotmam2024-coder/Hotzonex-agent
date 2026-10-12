@@ -1,81 +1,70 @@
-import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router';
+import { AuthProvider, RequireAuth, type AuthClient } from './auth/AuthContext';
+import { BusinessProvider } from './business/BusinessContext';
+import { ApiProvider } from './lib/ApiContext';
+import type { ApiClient } from './lib/api';
 import type { ClientEnvResult } from './lib/env';
-import { fetchHealth, type HealthResponse } from './lib/health';
+import { AppLayout } from './layout/AppLayout';
+import { LoginPage } from './pages/LoginPage';
+import { ProductsPage } from './pages/ProductsPage';
+import { SettingsPage } from './pages/SettingsPage';
 
-type HealthState =
-  | { kind: 'loading' }
-  | { kind: 'error'; message: string }
-  | { kind: 'ready'; health: HealthResponse };
-
-interface AppProps {
-  env: ClientEnvResult;
-  loadHealth?: (signal: AbortSignal) => Promise<HealthResponse>;
+export interface Services {
+  auth: AuthClient;
+  api: ApiClient;
 }
 
-export function App({ env, loadHealth = fetchHealth }: AppProps) {
-  if (!env.ok) {
-    return (
-      <main className="page">
-        <section className="card card--error" role="alert">
-          <h1>Configuration required</h1>
-          <p>The dashboard is missing browser configuration. Set these in <code>.env.local</code> or Vercel:</p>
-          <ul>
-            {env.errors.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </section>
-      </main>
-    );
-  }
-  return <SystemStatus loadHealth={loadHealth} />;
-}
-
-function SystemStatus({ loadHealth }: { loadHealth: (signal: AbortSignal) => Promise<HealthResponse> }) {
-  const [state, setState] = useState<HealthState>({ kind: 'loading' });
-
-  useEffect(() => {
-    const controller = new AbortController();
-    loadHealth(controller.signal)
-      .then((health) => setState({ kind: 'ready', health }))
-      .catch((err: unknown) => {
-        if (!controller.signal.aborted) {
-          setState({ kind: 'error', message: err instanceof Error ? err.message : 'Unknown error' });
-        }
-      });
-    return () => controller.abort();
-  }, [loadHealth]);
-
+export function ConfigErrorPage({ errors }: { errors: string[] }) {
   return (
     <main className="page">
-      <header className="page__header">
-        <h1>Hotzonex Agent</h1>
-        <p className="muted">WhatsApp AI sales agent</p>
-      </header>
-      <section className="card" aria-labelledby="status-heading" aria-busy={state.kind === 'loading'}>
-        <h2 id="status-heading">System status</h2>
-        {state.kind === 'loading' && <p>Checking API…</p>}
-        {state.kind === 'error' && (
-          <p role="alert" className="error">
-            Could not reach the API: {state.message}
-          </p>
-        )}
-        {state.kind === 'ready' && (
-          <>
-            <p>
-              API status: <strong>{state.health.status}</strong> ({state.health.environment})
-            </p>
-            <ul className="status-list">
-              {Object.entries(state.health.config).map(([group, ok]) => (
-                <li key={group}>
-                  <span className={ok ? 'dot dot--ok' : 'dot dot--bad'} aria-hidden="true" />
-                  {group}: {ok ? 'configured' : 'not configured'}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+      <section className="card card--error" role="alert">
+        <h1>Configuration required</h1>
+        <p>
+          The dashboard is missing browser configuration. Set these in <code>.env.local</code> or Vercel:
+        </p>
+        <ul>
+          {errors.map((e) => (
+            <li key={e}>{e}</li>
+          ))}
+        </ul>
       </section>
+    </main>
+  );
+}
+
+/** Routes; must be rendered inside a Router. */
+export function App({ env, services }: { env: ClientEnvResult; services: Services | null }) {
+  if (!env.ok || !services) return <ConfigErrorPage errors={env.ok ? ['Services unavailable'] : env.errors} />;
+  return (
+    <AuthProvider client={services.auth}>
+      <ApiProvider client={services.api}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            element={
+              <RequireAuth>
+                <BusinessProvider>
+                  <AppLayout />
+                </BusinessProvider>
+              </RequireAuth>
+            }
+          >
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Route>
+          <Route path="/" element={<Navigate to="/products" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </ApiProvider>
+    </AuthProvider>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <main className="page">
+      <h1>Page not found</h1>
+      <a href="/products">Go to products</a>
     </main>
   );
 }

@@ -9,7 +9,7 @@ deployments.
 | Variable | Exposed to browser | Required by | Where to get it |
 | --- | --- | --- | --- |
 | `VITE_SUPABASE_URL` | yes | dashboard | Supabase dashboard → Project Settings → API → Project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | yes | dashboard | Supabase → Project Settings → API Keys → **Publishable key** (`sb_publishable_…`). Legacy projects: the `anon` key. Safe in the browser only because RLS protects every table. |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | yes | dashboard, server | Supabase → Project Settings → API Keys → **Publishable key** (`sb_publishable_…`). Legacy projects: the `anon` key. Safe in the browser only because RLS protects every table. The server also uses it to run dashboard queries as the signed-in user. |
 | `APP_ENV` | no | all functions | You choose: `development`, `test`, `preview`, `production`. |
 | `APP_BASE_URL` | no | all functions | Public URL of the app, e.g. `http://localhost:5173` locally or `https://your-app.vercel.app`. Must be https in production. |
 | `SUPABASE_URL` | no | server | Same value as `VITE_SUPABASE_URL`. |

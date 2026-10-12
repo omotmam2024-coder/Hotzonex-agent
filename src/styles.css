@@ -39,3 +39,66 @@ body { margin: 0; background: var(--bg); }
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
 .dot--ok { background: var(--ok); }
 .dot--bad { background: var(--bad); }
+
+/* ---- layout ---- */
+.page--narrow { max-width: 420px; }
+.shell { min-height: 100vh; }
+.topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.brand { font-size: 1rem; }
+.spacer { flex: 1; }
+.nav { display: flex; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--border); overflow-x: auto; background: var(--surface); }
+.nav__link { padding: 6px 12px; border-radius: 6px; color: var(--muted); text-decoration: none; white-space: nowrap; }
+.nav__link--active { background: var(--bg); color: var(--text); font-weight: 600; }
+.toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.toolbar h1, section > h1 { font-size: 1.4rem; }
+.card + .card, .form + .card, .card { margin-bottom: 16px; }
+.small { font-size: 0.85rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.user-email { font-size: 0.85rem; }
+@media (max-width: 600px) { .user-email { display: none; } }
+
+/* ---- controls ---- */
+.btn { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn--primary { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+.btn--danger { color: var(--bad); }
+.btn--ghost { border-color: transparent; background: transparent; }
+.btn--small { padding: 4px 8px; font-size: 0.85rem; }
+input, select, textarea { font: inherit; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); width: 100%; }
+input[type='checkbox'] { width: auto; }
+[aria-invalid='true'] { border-color: var(--bad); }
+
+.form { display: grid; gap: 12px; }
+.form fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 12px; }
+.form__grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.form__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.field { display: grid; gap: 4px; }
+.field > label { font-weight: 500; font-size: 0.9rem; }
+.field__error { color: var(--bad); font-size: 0.85rem; }
+.checkbox { display: flex; gap: 8px; align-items: center; }
+.search { display: flex; gap: 8px; margin: 12px 0; }
+
+/* ---- states ---- */
+.state { padding: 24px 16px; text-align: center; color: var(--muted); display: flex; gap: 8px; justify-content: center; align-items: center; flex-direction: column; }
+.state--error { color: var(--bad); }
+.state__title { font-weight: 600; color: var(--text); margin: 0; }
+.spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--muted); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
+/* ---- table ---- */
+.table-wrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.table th, .table td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.8rem; background: var(--bg); border: 1px solid var(--border); }
+.badge--ok { color: var(--ok); border-color: var(--ok); }
+@media (max-width: 640px) {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table tr { border-bottom: 1px solid var(--border); padding: 8px 0; }
+  .table td { border: 0; padding: 4px 10px; }
+  .table td::before { content: attr(data-label); display: block; font-size: 0.75rem; color: var(--muted); }
+}
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+.facts dd { margin: 0; }

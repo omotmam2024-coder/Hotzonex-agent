@@ -6,6 +6,7 @@ const valid = {
   APP_BASE_URL: 'http://localhost:5173',
   SUPABASE_URL: 'https://abcd.supabase.co',
   SUPABASE_SECRET_KEY: 'sb_secret_0123456789abcdefghij',
+  VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_0123456789',
   OPENAI_API_KEY: 'test-openai-key-0123456789',
   OPENAI_MODEL: 'test-model',
   WHATSAPP_ACCESS_TOKEN: 'test-whatsapp-token-0123456789',

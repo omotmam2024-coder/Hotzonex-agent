@@ -6,6 +6,7 @@ const configured = {
   APP_BASE_URL: 'http://localhost:5173',
   SUPABASE_URL: 'https://abcd.supabase.co',
   SUPABASE_SECRET_KEY: 'sb_secret_0123456789abcdefghij',
+  VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_0123456789',
 };
 
 describe('handleHealth', () => {

@@ -45,6 +45,12 @@ const appSchema = z
 
 const supabaseSchema = z.object({
   SUPABASE_URL: httpUrl('SUPABASE_URL'),
+  // Public key, also used server-side to run dashboard queries as the
+  // signed-in user so RLS applies.
+  VITE_SUPABASE_PUBLISHABLE_KEY: required('VITE_SUPABASE_PUBLISHABLE_KEY').refine(
+    (v) => !v.startsWith('sb_secret_') && !isServiceRoleJwt(v),
+    'VITE_SUPABASE_PUBLISHABLE_KEY must be the publishable key, not a secret key',
+  ),
   SUPABASE_SECRET_KEY: secret('SUPABASE_SECRET_KEY', 20).refine(
     (v) => !v.startsWith('sb_publishable_'),
     'SUPABASE_SECRET_KEY is a publishable key; use the secret key (sb_secret_...)',
