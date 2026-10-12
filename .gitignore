@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.vercel/
+*.tsbuildinfo
+.DS_Store
+
+# Local environment files. Only .env.example is committed.
+.env
+.env.*
+!.env.example
